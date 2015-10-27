@@ -1,0 +1,31 @@
+global class IsTrustedIPAddressPlugin implements Process.Plugin {
+
+    global Process.PluginDescribeResult describe() {
+    	Process.PluginDescribeResult result = new Process.PluginDescribeResult(); 
+           result.Tag = 'Identity';
+           result.Name = 'IP Address Verifier';
+		   result.description = 'Checks to see if the User\'s IP Address is in the trusted Network Access list';
+           result.inputParameters = new List<Process.PluginDescribeResult.InputParameter> {
+           };
+       
+           result.outputParameters = new List<Process.PluginDescribeResult.OutputParameter> {
+               new Process.PluginDescribeResult.OutputParameter('Is Trusted IP Address', Process.PluginDescribeResult.ParameterType.Boolean)
+           };
+           return result; 
+    }
+
+
+    global Process.PluginResult invoke(Process.PluginRequest request) {   
+		Map<String,String> sessionAttributes  = Auth.SessionManagement.getCurrentSession();
+		String sourceIP = sessionAttributes.get('SourceIP');
+		Boolean isTrustedIP = Auth.SessionManagement.inOrgNetworkRange(sourceIP);
+        Map<String, Object> result = new Map<String, Object>();
+        result.put('Is Trusted IP Address', Auth.SessionManagement.inOrgNetworkRange(sourceIP));
+        return new Process.PluginResult(result);
+    }
+    
+}
+
+
+
+
